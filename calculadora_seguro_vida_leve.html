@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vida Segura · Calculadora de Prêmio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white: #ffffff;
+  --bg: #f6f8fc;
+  --surface: #ffffff;
+  --border: #e4e9f2;
+  --border-focus: #3b6cf8;
+  --ink: #0d1526;
+  --ink2: #3d4a62;
+  --muted: #8a96ab;
+  --accent: #3b6cf8;
+  --accent-light: #eef2ff;
+  --accent2: #0fc47a;
+  --accent2-light: #e8faf3;
+  --warn: #f4a729;
+  --shadow-sm: 0 1px 3px rgba(13,21,38,.06), 0 1px 2px rgba(13,21,38,.04);
+  --shadow-md: 0 4px 16px rgba(13,21,38,.08), 0 1px 4px rgba(13,21,38,.04);
+  --shadow-lg: 0 12px 40px rgba(13,21,38,.10), 0 2px 8px rgba(13,21,38,.05);
+  --r: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* subtle bg pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 70% 10%, rgba(59,108,248,.05) 0%, transparent 50%),
+                    radial-gradient(circle at 20% 80%, rgba(15,196,122,.04) 0%, transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 52px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(59,108,248,.3);
+}
+
+.brand-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+}
+
+.brand-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.brand-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 50%;
+}
+
+.brand-tag {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.h-desc {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink2);
+  line-height: 1.6;
+  max-width: 440px;
+}
+
+/* ── STEPS ── */
+.step-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 32px 0 24px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.step.active { color: var(--accent); }
+.step.done { color: var(--accent2); }
+
+.step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all .3s;
+}
+
+.step.active .step-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.step.done .step-num {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #fff;
+}
+
+.step-connector {
+  flex: 1;
+  height: 1.5px;
+  background: var(--border);
+  margin: 0 8px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 36px 40px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 16px;
+  animation: slideUp .5s cubic-bezier(.16,1,.3,1) both;
+}
+
+.card:nth-child(3) { animation-delay: .08s; }
+.card:nth-child(4) { animation-delay: .16s; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 560px) { .card { padding: 24px 20px; } }
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── FIELDS ── */
+.field { margin-bottom: 30px; }
+.field:last-of-type { margin-bottom: 0; }
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink2);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 0.01em;
+}
+
+.field-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* AGE */
+.age-display-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.age-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 56px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1;
+  transition: color .2s;
+}
+
+.age-unit {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* Slider */
+.slider-wrap { position: relative; height: 6px; }
+
+.slider-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.slider-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--accent), #6b8fff);
+  border-radius: 99px;
+  pointer-events: none;
+  transition: width .05s;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border: 2.5px solid var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(59,108,248,.25);
+  transition: transform .15s, box-shadow .15s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(59,108,248,.4);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* SEX */
+.sex-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sex-btn {
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink2);
+  transition: all .2s;
+}
+
+.sex-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.sex-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.sex-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+/* Text inputs */
+.input-group {
+  position: relative;
+}
+
+.input-prefix-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.text-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.text-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(59,108,248,.1);
+}
+
+.text-input::placeholder {
+  color: var(--border);
+  font-style: italic;
+}
+
+/* Select */
+.select-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 44px 14px 18px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.select-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(59,108,248,.1);
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--muted);
+}
+
+/* Email */
+.email-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.email-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(59,108,248,.1);
+}
+
+.email-input::placeholder { color: var(--muted); }
+
+.err-msg {
+  display: none;
+  font-size: 12px;
+  color: #e53e3e;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* DIVIDER */
+.rule { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* BUTTON */
+.btn-primary {
+  width: 100%;
+  padding: 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 20px rgba(59,108,248,.35);
+  transition: transform .15s, box-shadow .15s, background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-primary:hover {
+  background: #2d5ae0;
+  box-shadow: 0 6px 28px rgba(59,108,248,.45);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+.btn-primary svg {
+  width: 18px; height: 18px;
+  stroke: #fff; fill: none; stroke-width: 2;
+}
+
+/* ── RESULT CARD ── */
+#resultCard {
+  display: none;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+
+#resultCard.show { display: block; }
+#resultCard.visible { opacity: 1; transform: translateY(0); }
+
+/* Result header strip */
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.result-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rp-avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--accent-light);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rp-avatar svg {
+  width: 22px; height: 22px;
+  stroke: var(--accent); fill: none; stroke-width: 1.8;
+}
+
+.rp-info {}
+.rp-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rp-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.status-pill {
+  padding: 6px 14px;
+  background: var(--accent2-light);
+  color: var(--accent2);
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* Premium box */
+.premium-box {
+  background: linear-gradient(135deg, var(--accent) 0%, #6b8fff 100%);
+  border-radius: 16px;
+  padding: 36px;
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-box::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: rgba(255,255,255,.08);
+  border-radius: 50%;
+}
+
+.premium-box::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -30px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.05);
+  border-radius: 50%;
+}
+
+.pb-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,.7);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.pb-value {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 8vw, 68px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.pb-period {
+  font-size: 13px;
+  color: rgba(255,255,255,.65);
+  margin-top: 6px;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+}
+
+/* Metrics pills */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 480px) { .metrics-row { grid-template-columns: 1fr; } }
+
+.metric-pill {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 16px;
+  text-align: center;
+}
+
+.mp-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.mp-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.mp-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Notice */
+.notice {
+  display: flex;
+  gap: 12px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+}
+
+.notice-icon { flex-shrink: 0; font-size: 16px; }
+
+.notice p {
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: #92400e;
+  font-weight: 400;
+}
+
+.notice strong { font-weight: 600; }
+
+/* ── FEEDBACK ── */
+.fb-q {
+  margin-bottom: 26px;
+}
+
+.fb-qt {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.fb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fb-chip {
+  padding: 8px 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink2);
+  transition: all .2s;
+  white-space: nowrap;
+}
+
+.fb-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.fb-chip.sel {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.fb-textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  resize: none;
+  min-height: 100px;
+  line-height: 1.65;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.fb-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(59,108,248,.1);
+}
+
+.fb-textarea::placeholder { color: var(--muted); }
+
+.btn-fb {
+  padding: 14px 32px;
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  border-radius: 10px;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all .2s;
+  margin-top: 8px;
+}
+
+.btn-fb:hover {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(59,108,248,.3);
+}
+
+.fb-thanks {
+  display: none;
+  background: var(--accent2-light);
+  border: 1px solid rgba(15,196,122,.25);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.fb-thanks-emoji { font-size: 28px; margin-bottom: 8px; }
+
+.fb-thanks p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0a6b46;
+  margin-bottom: 4px;
+}
+
+.fb-thanks small {
+  font-size: 13px;
+  color: #3d8a6a;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 24px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand-row">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <span class="brand-name">Vida Segura</span>
+      <div class="brand-dot"></div>
+      <span class="brand-tag">Calculadora Atuarial</span>
+    </div>
+    <h1>Calcule seu <em>prêmio justo</em><br>de seguro de vida</h1>
+    <p class="h-desc">Simulação baseada em metodologia atuarial com a tábua BR-EMS 2021. Resultado em segundos.</p>
+  </header>
+
+  <!-- STEPS -->
+  <div class="step-bar">
+    <div class="step active" id="step1">
+      <div class="step-num">1</div>
+      <span>Seus dados</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step" id="step2">
+      <div class="step-num">2</div>
+      <span>Resultado</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step" id="step3">
+      <div class="step-num">3</div>
+      <span>Avaliação</span>
+    </div>
+  </div>
+
+  <!-- FORM CARD -->
+  <div class="card">
+    <div class="card-title">Informações da Simulação</div>
+
+    <!-- Age -->
+    <div class="field">
+      <div class="field-label">
+        <span>Idade atual</span>
+        <span class="field-hint" id="ageLabelVal">35 anos</span>
+      </div>
+      <div class="age-display-row">
+        <div class="age-num" id="ageDisplay">35</div>
+        <div class="age-unit">anos</div>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-track">
+          <div class="slider-fill" id="sliderFill" style="width:27.4%"></div>
+        </div>
+        <input type="range" id="ageSlider" min="18" max="80" value="35" oninput="updateAge(this.value)">
+      </div>
+      <div class="slider-labels"><span>18</span><span>80</span></div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- Sex -->
+    <div class="field">
+      <div class="field-label"><span>Sexo biológico</span></div>
+      <div class="sex-row">
+        <button class="sex-btn active" id="btnM" onclick="setSex('M')">
+          <svg viewBox="0 0 24 24"><circle cx="10" cy="14" r="6"/><line x1="14.5" y1="9.5" x2="20" y2="4"/><polyline points="16,4 20,4 20,8"/></svg>
+          Masculino
+        </button>
+        <button class="sex-btn" id="btnF" onclick="setSex('F')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+          Feminino
+        </button>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- Capital -->
+    <div class="field">
+      <div class="field-label">
+        <span>Capital segurado</span>
+        <span class="field-hint">de R$ 10 mil a R$ 10 milhões</span>
+      </div>
+      <div class="input-prefix-text">R$</div>
+      <input class="text-input" type="text" id="capital" placeholder="100.000" oninput="maskCurrency(this)">
+      <div class="err-msg" id="errCapital">Informe um valor entre R$ 10.000 e R$ 10.000.000</div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- Prazo -->
+    <div class="field">
+      <div class="field-label"><span>Prazo de cobertura</span></div>
+      <div class="select-wrap">
+        <select class="select-input" id="prazo">
+          <option value="5">5 anos</option>
+          <option value="10" selected>10 anos</option>
+          <option value="15">15 anos</option>
+          <option value="20">20 anos</option>
+          <option value="25">25 anos</option>
+          <option value="30">30 anos</option>
+          <option value="vitalicio">Vitalício — até 120 anos</option>
+        </select>
+        <span class="select-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- Email -->
+    <div class="field">
+      <div class="field-label"><span>E-mail para recebimento</span></div>
+      <input class="email-input" type="email" id="email" placeholder="seu@email.com.br">
+      <div class="err-msg" id="errEmail">Informe um endereço de e-mail válido</div>
+    </div>
+
+    <button class="btn-primary" onclick="calcular()">
+      <svg viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3"/><rect x="9" y="3" width="6" height="8" rx="1"/><line x1="9" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+      Calcular Prêmio Justo
+    </button>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div class="card" id="resultCard">
+    <div class="card-title">Resultado da Simulação</div>
+
+    <div class="result-header">
+      <div class="result-profile">
+        <div class="rp-avatar">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="rp-info">
+          <div class="rp-name" id="rpName">—</div>
+          <div class="rp-sub" id="rpSub">—</div>
+        </div>
+      </div>
+      <div class="status-pill">✓ Simulado</div>
+    </div>
+
+    <div class="premium-box">
+      <div class="pb-label">Prêmio Mensal Justo</div>
+      <div class="pb-value" id="premiumValue">—</div>
+      <div class="pb-period">por mês · base atuarial BR-EMS 2021</div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="metric-pill">
+        <div class="mp-label">Taxa de Risco</div>
+        <div class="mp-value" id="metTaxa">—</div>
+        <div class="mp-sub">ao ano</div>
+      </div>
+      <div class="metric-pill">
+        <div class="mp-label">Capital</div>
+        <div class="mp-value" id="metCapital">—</div>
+        <div class="mp-sub">segurado</div>
+      </div>
+      <div class="metric-pill">
+        <div class="mp-label">Idade Final</div>
+        <div class="mp-value" id="metIdade">—</div>
+        <div class="mp-sub">de cobertura</div>
+      </div>
+    </div>
+
+    <div class="notice">
+      <div class="notice-icon">⚠️</div>
+      <p><strong>Atenção:</strong> O valor final pode variar conforme avaliação de saúde, histórico médico e condições comerciais da seguradora. Esta simulação utiliza a tábua BR-EMS 2021 com carregamento de segurança de 25% e taxa de juros técnicos de 3% a.a.</p>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div id="fbSection">
+      <div class="card-title" style="margin-bottom:20px">Avalie esta ferramenta</div>
+
+      <div class="fb-q">
+        <div class="fb-qt">Como você avalia a clareza e utilidade desta calculadora?</div>
+        <div class="fb-chips" id="q1">
+          <button class="fb-chip" onclick="selChip('q1',this)">Excelente</button>
+          <button class="fb-chip" onclick="selChip('q1',this)">Muito boa</button>
+          <button class="fb-chip" onclick="selChip('q1',this)">Boa</button>
+          <button class="fb-chip" onclick="selChip('q1',this)">Regular</button>
+          <button class="fb-chip" onclick="selChip('q1',this)">Precisa melhorar</button>
+        </div>
+      </div>
+
+      <div class="fb-q">
+        <div class="fb-qt">Você contrataria um seguro com base nesta simulação?</div>
+        <div class="fb-chips" id="q2">
+          <button class="fb-chip" onclick="selChip('q2',this)">Sim, certamente</button>
+          <button class="fb-chip" onclick="selChip('q2',this)">Provavelmente sim</button>
+          <button class="fb-chip" onclick="selChip('q2',this)">Talvez</button>
+          <button class="fb-chip" onclick="selChip('q2',this)">Provavelmente não</button>
+          <button class="fb-chip" onclick="selChip('q2',this)">Não</button>
+        </div>
+      </div>
+
+      <div class="fb-q">
+        <div class="fb-qt">Deixe uma recomendação, elogio ou crítica:</div>
+        <textarea class="fb-textarea" id="fbOpen" placeholder="Sua opinião é muito importante para melhorarmos..." rows="4"></textarea>
+      </div>
+
+      <button class="btn-fb" onclick="enviarFb()">Enviar avaliação</button>
+
+      <div class="fb-thanks" id="fbThanks">
+        <div class="fb-thanks-emoji">🙏</div>
+        <p>Obrigado pela sua avaliação!</p>
+        <small>Seu retorno nos ajuda a melhorar continuamente.</small>
+      </div>
+    </div>
+  </div>
+
+  <footer>© Vida Segura · Calculadora Atuarial de Seguro de Vida · Uso informativo</footer>
+</div>
+
+<script>
+let sex = 'M';
+
+function updateAge(v) {
+  document.getElementById('ageDisplay').textContent = v;
+  document.getElementById('ageLabelVal').textContent = v + ' anos';
+  document.getElementById('sliderFill').style.width = ((v - 18) / (80 - 18) * 100) + '%';
+}
+
+function setSex(s) {
+  sex = s;
+  document.getElementById('btnM').classList.toggle('active', s === 'M');
+  document.getElementById('btnF').classList.toggle('active', s === 'F');
+}
+
+function maskCurrency(el) {
+  let v = parseInt(el.value.replace(/\D/g, '')) || 0;
+  el.value = v.toLocaleString('pt-BR');
+}
+
+function parseCur(s) { return parseInt(s.replace(/\./g, '')) || 0; }
+
+function fmtBRL(n) {
+  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtBRLShort(n) {
+  if (n >= 1000000) return 'R$ ' + (n / 1000000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + 'M';
+  if (n >= 1000)    return 'R$ ' + (n / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 0}) + 'K';
+  return fmtBRL(n);
+}
+
+const tabua = {
+  M: {18:.82,19:.88,20:.98,21:1.08,22:1.15,23:1.18,24:1.16,25:1.12,26:1.10,27:1.11,28:1.14,29:1.19,30:1.26,31:1.34,32:1.44,33:1.56,34:1.70,35:1.87,36:2.06,37:2.27,38:2.51,39:2.78,40:3.08,41:3.41,42:3.78,43:4.18,44:4.62,45:5.10,46:5.63,47:6.20,48:6.83,49:7.51,50:8.26,51:9.07,52:9.95,53:10.90,54:11.94,55:13.06,56:14.28,57:15.61,58:17.06,59:18.64,60:20.38,61:22.27,62:24.33,63:26.57,64:29.01,65:31.67,66:34.56,67:37.71,68:41.14,69:44.87,70:48.94,71:53.37,72:58.19,73:63.43,74:69.14,75:75.35,76:82.11,77:89.46,78:97.43,79:106.08,80:115.44},
+  F: {18:.34,19:.36,20:.39,21:.41,22:.43,23:.44,24:.44,25:.43,26:.43,27:.44,28:.46,29:.49,30:.53,31:.58,32:.64,33:.71,34:.80,35:.90,36:1.02,37:1.15,38:1.30,39:1.47,40:1.67,41:1.89,42:2.13,43:2.40,44:2.70,45:3.04,46:3.41,47:3.82,48:4.27,49:4.76,50:5.31,51:5.91,52:6.58,53:7.31,54:8.11,55:9.00,56:9.97,57:11.04,58:12.22,59:13.51,60:14.93,61:16.50,62:18.22,63:20.12,64:22.21,65:24.50,66:27.02,67:29.79,68:32.83,69:36.18,70:39.87,71:43.92,72:48.37,73:53.25,74:58.60,75:64.47,76:70.90,77:77.93,78:85.62,79:94.02,80:103.18}
+};
+
+function calcPremio(age, s, cs, prazo) {
+  const i = .03, v = 1 / (1 + i), tbl = tabua[s], ld = 1.25;
+  let Ax = 0, ax = 0, kpx = 1;
+  for (let k = 0; k < prazo; k++) {
+    const x = Math.min(age + k, 80), qx = (tbl[x] || tbl[80]) / 1000 * ld;
+    ax += Math.pow(v, k) * kpx;
+    Ax += Math.pow(v, k + 1) * kpx * qx;
+    kpx *= (1 - qx);
+  }
+  return { premioMensal: (Ax / ax) * cs / 12, taxaRisco: (Ax / ax) * 100 };
+}
+
+function calcular() {
+  const age  = parseInt(document.getElementById('ageSlider').value);
+  const cap  = parseCur(document.getElementById('capital').value);
+  const prazo = document.getElementById('prazo').value;
+  const mail = document.getElementById('email').value.trim();
+  let ok = true;
+
+  if (cap < 10000 || cap > 10000000) { document.getElementById('errCapital').style.display = 'block'; ok = false; }
+  else document.getElementById('errCapital').style.display = 'none';
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { document.getElementById('errEmail').style.display = 'block'; ok = false; }
+  else document.getElementById('errEmail').style.display = 'none';
+
+  if (!ok) return;
+
+  const prazoAnos  = prazo === 'vitalicio' ? Math.min(120 - age, 80) : parseInt(prazo);
+  const idadeFinal = prazo === 'vitalicio' ? 120 : age + parseInt(prazo);
+  const { premioMensal, taxaRisco } = calcPremio(age, sex, cap, prazoAnos);
+
+  document.getElementById('rpName').textContent = `${sex === 'M' ? 'Masculino' : 'Feminino'}, ${age} anos`;
+  document.getElementById('rpSub').textContent  = `Capital: ${fmtBRLShort(cap)} · ${prazo === 'vitalicio' ? 'Cobertura vitalícia' : prazo + ' anos de cobertura'}`;
+  document.getElementById('premiumValue').textContent = fmtBRL(premioMensal);
+  document.getElementById('metTaxa').textContent    = taxaRisco.toFixed(4) + '%';
+  document.getElementById('metCapital').textContent = fmtBRLShort(cap);
+  document.getElementById('metIdade').textContent   = Math.min(idadeFinal, 120) + ' anos';
+
+  // update steps
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('done');
+  document.getElementById('step2').classList.add('active');
+
+  const rc = document.getElementById('resultCard');
+  rc.classList.add('show');
+  setTimeout(() => {
+    rc.classList.add('visible');
+    rc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 20);
+}
+
+function selChip(g, btn) {
+  document.querySelectorAll('#' + g + ' .fb-chip').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function enviarFb() {
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step2').classList.add('done');
+  document.getElementById('step3').classList.add('active');
+  const s = document.getElementById('fbSection');
+  s.style.opacity = '0'; s.style.transition = 'opacity .35s';
+  setTimeout(() => {
+    s.style.display = 'none';
+    const t = document.getElementById('fbThanks');
+    t.style.display = 'block'; t.style.opacity = '0'; t.style.transition = 'opacity .4s';
+    requestAnimationFrame(() => t.style.opacity = '1');
+    document.getElementById('step3').classList.remove('active');
+    document.getElementById('step3').classList.add('done');
+  }, 350);
+}
+</script>
+</body>
+</html>
